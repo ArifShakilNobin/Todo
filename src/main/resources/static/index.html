@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+</head>
+<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+      crossorigin="anonymous" referrerpolicy="no-referrer"/>
+<body>
+<h2>To Do App</h2>
+
+<div ng-app="toDoApp" ng-controller="appController">
+
+    <button title="Add" class="btn btn-success" data-toggle="modal" data-target="#exampleModalCenter">Add New Task
+    </button>
+
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">sl</th>
+            <th scope="col">Item</th>
+            <th scope="col">Date</th>
+            <th scope="col">Description</th>
+            <th scope="col">Action</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        <tr ng-repeat="data in todoList.data" let $index=0>
+            <td>{{$index+1}}</td>
+            <td>{{data.item}}</td>
+            <td>{{data.date}}</td>
+            <td>{{data.description}}</td>
+            <td>
+                <button title="Edit" ng-click="onEdit(data.id)" data-toggle="modal" data-target="#exampleModalCenter"
+                        class="btn btn-primary"><i class="fas fa-edit"></i></button>
+                <button title="delete" ng-click="onDelete(data.id)" class="btn btn-danger"><i class="fa-sharp fa-solid fa-trash"></i></button>
+
+
+            </td>
+        </tr>
+
+        </tbody>
+    </table>
+
+    <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog"
+         aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Add Task</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="item">Item</label>
+                            <input type="text" class="form-control" id="item" placeholder="Task" value="{{ToDo.item}}"
+                                   ng-model="toDo.item" ng-required="true">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="date">Date</label>
+                            <input type="date" class="date form-control" id="date" placeholder="Date"
+                                   value="{{ToDo.date}}"
+                                   ng-model="toDo.date" ng-required="true">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="description">Description</label>
+                            <textarea class="form-control" id="description" rows="3" value="{{ToDo.description}}"
+                                      ng-model="toDo.description" ng-required="true"></textarea>
+                        </div>
+                    </div>
+
+
+                    <button type="button" class="btn btn-primary" ng-click="onAdd()"><i class="fa-solid fa-floppy-disk"></i> Save</button>
+
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    var mainApp = angular.module("toDoApp", []);
+
+    mainApp.controller('appController', function ($scope, $http) {
+
+        $scope.todoList = [];
+        $scope.toDo = new Object();
+
+        getAllToDO();
+
+        function getAllToDO() {
+            $http({
+                url: 'http://localhost:8080/todos',
+                method: 'GET',
+                headers: {'Content-Type': 'application/json'}
+
+            }).success(function (data) {
+                $scope.todoList = data;
+            })
+        }
+
+        $scope.onAdd = function () {
+
+            if ($scope.toDo.id == null) {
+                $http.post("http://localhost:8080/todo", $scope.toDo)
+                    .success(function (httpResponse) {
+                        alert("Save successfully");
+                        location.reload();
+                    }, function (error) {
+                        alert('Unable to save');
+                    });
+            } else {
+                $http.put("http://localhost:8080/todo/" + $scope.toDo.id, $scope.toDo)
+                    .success(function (httpResponse) {
+                        alert("Update successfully");
+                        location.reload();
+                    }, function (error) {
+                        alert('Unable to update');
+                    });
+            }
+        }
+
+        $scope.onDelete = function (id) {
+            var isConfirmDelete = confirm('Are you sure you want this record?');
+            if (isConfirmDelete) {
+                $http({
+                    url: 'http://localhost:8080/todo/' + id,
+                    method: 'DELETE',
+                    headers: {'Content-Type': 'application/json'}
+
+                }).success(function (response) {
+                    location.reload();
+                }, function (error) {
+                    alert('Unable to delete');
+                });
+            } else {
+                return false;
+
+            }
+        }
+
+        $scope.onEdit = function (id) {
+
+            $http.get('http://localhost:8080/todo/' + id).success(function (data) {
+
+                $scope.toDo = data
+                $scope.toDo.id = data.data.id;
+                $scope.toDo.item = data.data.item;
+                $scope.toDo.date = data.data.date;
+                $scope.toDo.description = data.data.description;
+
+            }).error(function () {
+
+                alert("An Error has occured while editing task!");
+
+            });
+
+
+        }
+
+    });
+
+
+</script>
+
+</body>
+
+
+</html>

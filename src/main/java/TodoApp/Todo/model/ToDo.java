@@ -6,7 +6,7 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "todo")
@@ -21,7 +21,7 @@ public class ToDo {
     private String item;
 
     @Column(name = "date")
-    private Date date;
+    private LocalDate date;
 
     @Column(name = "description")
     private String description;
